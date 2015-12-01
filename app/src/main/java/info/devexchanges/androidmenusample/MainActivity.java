@@ -3,6 +3,7 @@ package info.devexchanges.androidmenusample;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Color;
 import android.net.Uri;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -16,6 +17,8 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.PopupMenu;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
@@ -27,7 +30,9 @@ public class MainActivity extends AppCompatActivity {
     private ListView listView;
     private ArrayList<String> countries;
     private ArrayAdapter<String> adapter;
+    private TextView listViewHeader;
     private Toolbar toolbar;
+    private PopupMenu popupMenu;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,6 +41,8 @@ public class MainActivity extends AppCompatActivity {
 
         listView = (ListView) findViewById(R.id.list);
         toolbar = (Toolbar) findViewById(R.id.toolbar);
+        listViewHeader = (TextView) findViewById(R.id.header_list);
+        listViewHeader.setOnClickListener(onShowPopupMenu());
 
         addingDataToList();
         adapter = new ArrayAdapter<>(this, android.R.layout.simple_dropdown_item_1line, countries);
@@ -45,6 +52,64 @@ public class MainActivity extends AppCompatActivity {
 
         //register contextMenu with TextView
         registerForContextMenu(listView);
+    }
+
+    private void addingDataToList() {
+        countries = new ArrayList<>();
+        countries.add("Vietnam");
+        countries.add("Japan");
+        countries.add("China");
+        countries.add("Singapore");
+        countries.add("USA");
+        countries.add("Russia");
+        countries.add("Korea");
+        countries.add("Thailand");
+        countries.add("India");
+        countries.add("Malaysia");
+        countries.add("Philippines");
+        countries.add("Germany");
+        countries.add("France");
+        countries.add("Netherlands");
+    }
+
+    private View.OnClickListener onShowPopupMenu() {
+        return new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                popupMenu = new PopupMenu(MainActivity.this, v);
+                popupMenu.setOnMenuItemClickListener(onPopupMenuClickListener());
+                popupMenu.inflate(R.menu.menu_pop_up);
+                popupMenu.show();
+            }
+        };
+    }
+
+    private PopupMenu.OnMenuItemClickListener onPopupMenuClickListener() {
+        return new PopupMenu.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                switch (item.getItemId()) {
+                    case R.id.hide:
+                        if (listView.getVisibility() == View.VISIBLE) {
+                            //hiding listview
+                            listView.setVisibility(View.GONE);
+                        } else {
+                            //showing listview
+                            listView.setVisibility(View.VISIBLE);
+                        }
+                        return true;
+                    case R.id.change_color:
+                        listViewHeader.setBackgroundColor(Color.GREEN);
+                        return true;
+                    case R.id.others:
+                        Toast.makeText(MainActivity.this, "Other option, please define later!", Toast.LENGTH_SHORT).show();
+                        return true;
+
+                    default:
+                        return false;
+                }
+            }
+        };
     }
 
     @Override
@@ -74,14 +139,14 @@ public class MainActivity extends AppCompatActivity {
     public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
         super.onCreateContextMenu(menu, v, menuInfo);
         getMenuInflater().inflate(R.menu.menu_context_main, menu);
-        AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo)menuInfo;
+        AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) menuInfo;
         menu.setHeaderTitle(countries.get(info.position));
 
     }
 
     @Override
     public boolean onContextItemSelected(MenuItem item) {
-        AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo)item.getMenuInfo();
+        AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
         //find out which menu item was pressed
         switch (item.getItemId()) {
             case R.id.delete:
@@ -161,23 +226,5 @@ public class MainActivity extends AppCompatActivity {
         i.setData(Uri.parse(url));
 
         startActivity(i);
-    }
-
-    private void addingDataToList() {
-        countries = new ArrayList<>();
-        countries.add("Vietnam");
-        countries.add("Japan");
-        countries.add("China");
-        countries.add("Singapore");
-        countries.add("USA");
-        countries.add("Russia");
-        countries.add("Korea");
-        countries.add("Thailand");
-        countries.add("India");
-        countries.add("Malaysia");
-        countries.add("Philippines");
-        countries.add("Germany");
-        countries.add("France");
-        countries.add("Netherlands");
     }
 }
